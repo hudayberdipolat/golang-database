@@ -45,7 +45,10 @@ func main() {
 	// call insert function
 	//insertCity()
 	// select city
-	selectCity()
+	//selectCity()
+	// select one city
+	//selectOneCity(1)
+	selectWithPreparedStatemant("Ashgabat")
 }
 
 /* Note
@@ -67,7 +70,7 @@ func insertCity() {
 
 func selectCity() {
 	var cityList []City
-	rows, err := db.Query("select id, name , code from cities")
+	rows, err := db.Query("select id, name , code FROM cities")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -83,4 +86,34 @@ func selectCity() {
 		rows.Close()
 		fmt.Println(cityList)
 	}
+}
+
+func selectOneCity(id int) {
+	var city City
+	sqlQuery := fmt.Sprintf("SELECT id, name, code FROM cities WHERE id = %v", id)
+
+	err := db.QueryRow(sqlQuery).Scan(&city.ID, &city.Name, &city.Code)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(city)
+	}
+}
+
+func selectWithPreparedStatemant(cityName string) {
+	stmt, err := db.Prepare("SELECT id, name, code FROM cities WHERE name = $1")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	} else {
+		var city City
+		err := stmt.QueryRow(cityName).Scan(&city.ID, &city.Name, &city.Code)
+		if err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			fmt.Println(city)
+		}
+	}
+
 }
